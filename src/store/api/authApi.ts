@@ -1,50 +1,56 @@
-import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
+import type { BaseQueryFn } from '@reduxjs/toolkit/query'
+import type { AxiosRequestConfig, Method } from 'axios'
 import type { ApiError, LoginRequest, LoginResponse, MeResponse, RegisterRequest, RegisterResponse } from './types'
-import * as mockServer from './mockServer'
+import { request } from '../../util/request'
+import { authActions } from '../slices/authSlice'
+import { userActions } from '../slices/userSlice'
+
+type AxiosBaseQueryArgs = {
+  url: string
+  method?: Method
+  data?: unknown
+  params?: unknown
+  headers?: AxiosRequestConfig['headers']
+}
+
+const axiosBaseQuery =
+  (): BaseQueryFn<AxiosBaseQueryArgs, unknown, ApiError> =>
+  async (args, api) => {
+    try {
+      const result = await request.request({
+        url: args.url,
+        method: args.method ?? 'GET',
+        data: args.data,
+        params: args.params,
+        headers: args.headers,
+      })
+      return { data: result.data }
+    } catch (e) {
+      const err = e as ApiError
+      if (err.code === 'AUTH_TOKEN_EXPIRED' || err.code === 'AUTH_UNAUTHORIZED' || err.code === 'HTTP_401') {
+        api.dispatch(authActions.logout())
+        api.dispatch(userActions.reset())
+      }
+      return { error: err }
+    }
+  }
 
 export const authApi = createApi({
   reducerPath: 'authApi',
-  baseQuery: fakeBaseQuery<ApiError>(),
+  baseQuery: axiosBaseQuery(),
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponse, LoginRequest>({
-      queryFn: async (arg) => {
-        try {
-          const data = await mockServer.login(arg)
-          return { data }
-        } catch (e) {
-          return { error: e as ApiError }
-        }
-      },
+      query: (body) => ({ url: '/auth/login', method: 'POST', data: body }),
     }),
     register: builder.mutation<RegisterResponse, RegisterRequest>({
-      queryFn: async (arg) => {
-        try {
-          const data = await mockServer.register(arg)
-          return { data }
-        } catch (e) {
-          return { error: e as ApiError }
-        }
-      },
+      query: (body) => ({ url: '/auth/register', method: 'POST', data: body }),
     }),
     logout: builder.mutation<{ success: boolean }, void>({
-      queryFn: async () => {
-        try {
-          const data = await mockServer.logout()
-          return { data }
-        } catch (e) {
-          return { error: e as ApiError }
-        }
-      },
+      query: () => ({ url: '/auth/logout', method: 'POST' }),
     }),
     me: builder.query<MeResponse, void>({
-      queryFn: async () => {
-        try {
-          const data = await mockServer.me()
-          return { data }
-        } catch (e) {
-          return { error: e as ApiError }
-        }
-      },
+      query: () => ({ url: '/users/me', method: 'GET' }),
     }),
   }),
 })

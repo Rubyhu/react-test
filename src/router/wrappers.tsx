@@ -29,7 +29,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
   if (isError) {
     const code = (error as ApiError | undefined)?.code
-    if (code === 'AUTH_TOKEN_EXPIRED' || code === 'AUTH_UNAUTHORIZED') {
+    if (code === 'AUTH_TOKEN_EXPIRED' || code === 'AUTH_UNAUTHORIZED' || code === 'HTTP_401') {
       dispatch(authActions.logout())
       dispatch(userActions.reset())
       dispatch(authApi.util.resetApiState())
