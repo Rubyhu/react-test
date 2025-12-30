@@ -1,0 +1,147 @@
+import { Layout, Menu, Dropdown, Button, Space, Typography, type MenuProps } from 'antd'
+import { MenuFoldOutlined, MenuUnfoldOutlined, GlobalOutlined } from '@ant-design/icons'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
+import { appActions } from '../../store/slices/appSlice'
+import { authActions } from '../../store/slices/authSlice'
+import { userActions } from '../../store/slices/userSlice'
+import { authApi, useLogoutMutation } from '../../store/api/authApi'
+
+const { Header, Sider, Content } = Layout
+
+type MenuItem = {
+  key: string
+  label: string
+  path?: string
+  children?: MenuItem[]
+  roles?: string[]
+}
+
+function getSelectedKeys(pathname: string) {
+  if (pathname.startsWith('/system/users')) return ['/system/users']
+  if (pathname.startsWith('/system/roles')) return ['/system/roles']
+  if (pathname.startsWith('/profile')) return ['/profile']
+  return ['/dashboard']
+}
+
+export function AppLayout() {
+  const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const dispatch = useAppDispatch()
+  const collapsed = useAppSelector((s) => s.app.collapsed)
+  const roles = useAppSelector((s) => s.user.roles)
+  const userName = useAppSelector((s) => s.user.profile?.name)
+
+  const [doLogout, { isLoading: isLoggingOut }] = useLogoutMutation()
+
+  const menuTree: MenuItem[] = useMemo(() => {
+    const items: MenuItem[] = [
+      { key: '/dashboard', label: t('dashboard'), path: '/dashboard' },
+      { key: '/profile', label: t('profile'), path: '/profile' },
+      {
+        key: '/system',
+        label: t('system'),
+        roles: ['admin'],
+        children: [
+          { key: '/system/users', label: t('users'), path: '/system/users', roles: ['admin'] },
+          { key: '/system/roles', label: t('roles'), path: '/system/roles', roles: ['admin'] },
+        ],
+      },
+    ]
+
+    const canSee = (item: MenuItem) => {
+      if (!item.roles || item.roles.length === 0) return true
+      return item.roles.some((r) => roles.includes(r))
+    }
+
+    const filterTree = (list: MenuItem[]): MenuItem[] => {
+      return list
+        .filter(canSee)
+        .map((it) => {
+          if (!it.children) return it
+          return { ...it, children: filterTree(it.children) }
+        })
+        .filter((it) => (it.children ? it.children.length > 0 || it.path : true))
+    }
+
+    return filterTree(items)
+  }, [roles, t])
+
+  const menuItems = useMemo(() => {
+    const toAntdItems = (items: MenuItem[]): NonNullable<MenuProps['items']> => {
+      return items.map((it) => ({
+        key: it.key,
+        label: it.label,
+        children: it.children ? toAntdItems(it.children) : undefined,
+      }))
+    }
+    return toAntdItems(menuTree)
+  }, [menuTree])
+
+  const selectedKeys = useMemo(() => getSelectedKeys(location.pathname), [location.pathname])
+
+  const onMenuClick = (e: { key: string }) => {
+    navigate(e.key)
+  }
+
+  const toggle = () => dispatch(appActions.toggleCollapsed())
+
+  const switchLanguage = async () => {
+    const next = i18n.language.startsWith('zh') ? 'en-US' : 'zh-CN'
+    localStorage.setItem('language', next)
+    await i18n.changeLanguage(next)
+  }
+
+  const onLogout = async () => {
+    await doLogout().unwrap().catch(() => undefined)
+    dispatch(authActions.logout())
+    dispatch(userActions.reset())
+    dispatch(authApi.util.resetApiState())
+    navigate('/login', { replace: true })
+  }
+
+  const userMenuItems: NonNullable<MenuProps['items']> = [
+    { key: 'profile', label: t('profile'), onClick: () => navigate('/profile') },
+    { key: 'logout', label: t('logout'), onClick: onLogout, disabled: isLoggingOut },
+  ]
+
+  return (
+    <Layout style={{ height: '100%' }}>
+      <Sider collapsible collapsed={collapsed} trigger={null}>
+        <div style={{ height: 48, display: 'flex', alignItems: 'center', padding: '0 16px' }}>
+          <Typography.Text style={{ color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>
+            {collapsed ? 'A' : t('appName')}
+          </Typography.Text>
+        </div>
+        <Menu
+          theme="dark"
+          mode="inline"
+          items={menuItems}
+          selectedKeys={selectedKeys}
+          onClick={onMenuClick}
+        />
+      </Sider>
+      <Layout>
+        <Header style={{ padding: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Button type="text" onClick={toggle} aria-label="toggle-sider">
+            {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          </Button>
+          <Space size={12}>
+            <Button type="text" onClick={switchLanguage} aria-label="switch-language" icon={<GlobalOutlined />} />
+            <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
+              <Button type="text">
+                <span>{userName ?? '-'}</span>
+              </Button>
+            </Dropdown>
+          </Space>
+        </Header>
+        <Content style={{ padding: 16, overflow: 'auto' }}>
+          <Outlet />
+        </Content>
+      </Layout>
+    </Layout>
+  )
+}

@@ -1,0 +1,78 @@
+import { Button, Card, Form, Input, Space, Typography, message } from 'antd'
+import { useSearchParams, useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { useEffect } from 'react'
+import { authApi, useLoginMutation } from '../../store/api/authApi'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
+import { authActions } from '../../store/slices/authSlice'
+
+type FormValues = {
+  account: string
+  password: string
+}
+
+export function LoginPage() {
+  const { t } = useTranslation()
+  const [form] = Form.useForm<FormValues>()
+  const [params] = useSearchParams()
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+  const token = useAppSelector((s) => s.auth.accessToken)
+
+  const [login, { isLoading }] = useLoginMutation()
+
+  useEffect(() => {
+    if (token) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [navigate, token])
+
+  const onFinish = async (values: FormValues) => {
+    const result = await login(values).unwrap().catch((e: { code: string }) => e)
+    if ('accessToken' in result) {
+      dispatch(authActions.setCredentials({ accessToken: result.accessToken }))
+      const p = dispatch(authApi.endpoints.me.initiate())
+      await p.unwrap().catch(() => undefined)
+      p.unsubscribe()
+      const redirect = params.get('redirect')
+      navigate(redirect ? decodeURIComponent(redirect) : '/dashboard', { replace: true })
+      return
+    }
+
+    const code = (result as { code?: string }).code
+    if (code === 'AUTH_INVALID_CREDENTIALS') {
+      message.error(t('invalidCredentials'))
+      return
+    }
+    message.error((result as { message?: string }).message ?? 'Error')
+  }
+
+  return (
+    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <Card style={{ width: 360 }}>
+        <Space orientation="vertical" size={16} style={{ width: '100%' }}>
+          <Typography.Title level={4} style={{ margin: 0 }}>
+            {t('login')}
+          </Typography.Title>
+          <Form form={form} layout="vertical" onFinish={onFinish} autoComplete="off">
+            <Form.Item name="account" label={t('account')} rules={[{ required: true }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item name="password" label={t('password')} rules={[{ required: true }]}>
+              <Input.Password />
+            </Form.Item>
+            <Button type="primary" htmlType="submit" block loading={isLoading}>
+              {t('submit')}
+            </Button>
+          </Form>
+          <Typography.Text>
+            <Link to="/register">{t('goToRegister')}</Link>
+          </Typography.Text>
+          <Typography.Paragraph type="secondary" style={{ margin: 0 }}>
+            admin / admin123
+          </Typography.Paragraph>
+        </Space>
+      </Card>
+    </div>
+  )
+}
