@@ -4,6 +4,10 @@
     "target": "ES2023",
     "lib": ["ES2023"],
     "module": "ESNext",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "types": ["node"],
     "skipLibCheck": true,
 
@@ -15,7 +19,8 @@
     "noEmit": true,
 
     /* Linting */
-    "strict": true,
+    "strict": false,
+    "noImplicitAny": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,

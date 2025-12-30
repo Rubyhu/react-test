@@ -2,7 +2,7 @@ import { Button, Card, Form, Input, Space, Typography, message } from 'antd'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useEffect } from 'react'
-import { authApi, useLoginMutation } from '../../store/api/authApi'
+import { authApi, useLoginMutation } from '../../store/apii/authApi'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { authActions } from '../../store/slices/authSlice'
 

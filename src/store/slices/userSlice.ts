@@ -1,6 +1,12 @@
-import { createSlice } from '@reduxjs/toolkit'
-import { authApi } from '../api/authApi'
-import type { MeResponse } from '../api/types'
+import { createSlice,createAsyncThunk,type PayloadAction } from '@reduxjs/toolkit'
+import {userApi } from '@/api/user.ts'
+export type UserInfo = {
+  id: string
+  name: string
+  avatar?: string
+  roles: string[]
+  permissionCodes: string[]
+}
 
 export type UserProfile = {
   id: string
@@ -19,6 +25,17 @@ const initialState: UserState = {
   roles: [],
   permissionCodes: [],
 }
+export const getUserInfoAsync = createAsyncThunk('userInfo', async () => {
+  const response = await userApi.getUserInfo()
+  debugger
+  return {
+    id: response.id,
+    name: response.name,
+    avatar: response.avatar,
+    roles: response.roles ?? [],
+    permissionCodes: response.permissionCodes ?? [],
+  }
+})
 
 const userSlice = createSlice({
   name: 'user',
@@ -29,7 +46,7 @@ const userSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addMatcher(authApi.endpoints.me.matchFulfilled, (state, action: { payload: MeResponse }) => {
+     builder.addCase(getUserInfoAsync.fulfilled, (state, action: PayloadAction<UserInfo>) => {
       state.profile = {
         id: action.payload.id,
         name: action.payload.name,
@@ -38,6 +55,7 @@ const userSlice = createSlice({
       state.roles = action.payload.roles
       state.permissionCodes = action.payload.permissionCodes
     })
+
   },
 })
 

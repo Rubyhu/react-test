@@ -2,7 +2,7 @@ import { Button, Card, Form, Input, Space, Typography, message } from 'antd'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useEffect } from 'react'
-import { useRegisterMutation } from '../../store/api/authApi'
+import { useRegisterMutation } from '../../store/apii/authApi'
 import { useAppSelector } from '../../store/hooks'
 
 type FormValues = {

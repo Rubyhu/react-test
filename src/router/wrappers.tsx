@@ -1,43 +1,25 @@
 import type { ReactNode } from 'react'
+import { getAccessToken } from '../store/storage'
 import { Navigate, useLocation } from 'react-router-dom'
-import { Spin } from 'antd'
-import { useAppDispatch, useAppSelector } from '../store/hooks'
-import { authActions } from '../store/slices/authSlice'
-import { userActions } from '../store/slices/userSlice'
-import { authApi, useMeQuery } from '../store/api/authApi'
-import type { ApiError } from '../store/api/types'
+import {  useAppSelector } from '../store/hooks'
 import { ForbiddenPage } from '../ui/pages/ForbiddenPage'
 
+/**
+ * RequireAuth 组件，用于保护需要认证才能访问的路由
+ * 当用户未登录时，会重定向到登录页面，并在登录后返回原来尝试访问的页面
+ * @param children - 需要认证后才能渲染的子组件
+ */
 export function RequireAuth({ children }: { children: ReactNode }) {
-  const token = useAppSelector((s) => s.auth.accessToken)
+  // 使用 useLocation 获取当前路由信息，用于重定向时记录原始路径
+  // 获取用户访问令牌，判断用户是否已登录
+  // 以下代码被注释，可能是使用了另一种方式获取token
+//   const token = useAppSelector((s) => s.auth.accessToken)
   const location = useLocation()
-  const dispatch = useAppDispatch()
-  const { isLoading, isFetching, isError, error } = useMeQuery(undefined, { skip: !token })
-
-  if (!token) {
+ const userToken = getAccessToken()
+  if (!userToken) {
     const redirect = encodeURIComponent(location.pathname + location.search)
     return <Navigate to={`/login?redirect=${redirect}`} replace />
   }
-
-  if (isLoading || isFetching) {
-    return (
-      <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Spin />
-      </div>
-    )
-  }
-
-  if (isError) {
-    const code = (error as ApiError | undefined)?.code
-    if (code === 'AUTH_TOKEN_EXPIRED' || code === 'AUTH_UNAUTHORIZED' || code === 'HTTP_401') {
-      dispatch(authActions.logout())
-      dispatch(userActions.reset())
-      dispatch(authApi.util.resetApiState())
-      const redirect = encodeURIComponent(location.pathname + location.search)
-      return <Navigate to={`/login?redirect=${redirect}`} replace />
-    }
-  }
-
   return children
 }
 

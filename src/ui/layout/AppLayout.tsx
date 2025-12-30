@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { appActions } from '../../store/slices/appSlice'
 import { authActions } from '../../store/slices/authSlice'
 import { userActions } from '../../store/slices/userSlice'
-import { authApi, useLogoutMutation } from '../../store/api/authApi'
+import { authApi, useLogoutMutation } from '../../store/apii/authApi'
 
 const { Header, Sider, Content } = Layout
 
