@@ -19,10 +19,13 @@ const mockUserList: UserInfo = {
   roles: ['admin'],
   permissionCodes: ['*'],
 }
+const mockLogininfo={"accessToken":"123456"}
+const mockRegisterinfo={"accessToken":"123456","success":true}
 
 export const userApi = {
-  login: (data: LoginParams) => request.post('/auth/login', data),
   //getUserInfo: () => request.get<UserInfo>('/users/me'),
-  getUserInfo:()=>{ return new Promise(resolve => setTimeout(() => resolve(mockUserList), 1000))}
+  getUserInfo:()=>{ return new Promise(resolve => setTimeout(() => resolve(mockUserList), 1000))},
+   login:()=>{ return new Promise(resolve => setTimeout(() => resolve(mockLogininfo), 1000))},
+   register:()=>{ return new Promise(resolve => setTimeout(() => resolve(mockRegisterinfo), 1000))},
  
 }

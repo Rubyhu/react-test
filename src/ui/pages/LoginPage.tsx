@@ -1,10 +1,10 @@
 import { Button, Card, Form, Input, Space, Typography, message } from 'antd'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useEffect } from 'react'
-import { authApi, useLoginMutation } from '../../store/apii/authApi'
+import { useEffect,useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { authActions } from '../../store/slices/authSlice'
+import { userApi } from '@/api/user'
 
 type FormValues = {
   account: string
@@ -12,6 +12,7 @@ type FormValues = {
 }
 
 export function LoginPage() {
+     const [isLoading, setIsLoading ]  = useState(false)
   const { t } = useTranslation()
   const [form] = Form.useForm<FormValues>()
   const [params] = useSearchParams()
@@ -19,7 +20,6 @@ export function LoginPage() {
   const dispatch = useAppDispatch()
   const token = useAppSelector((s) => s.auth.accessToken)
 
-  const [login, { isLoading }] = useLoginMutation()
 
   useEffect(() => {
     if (token) {
@@ -27,23 +27,24 @@ export function LoginPage() {
     }
   }, [navigate, token])
 
-  const onFinish = async (values: FormValues) => {
-    const result = await login(values).unwrap().catch((e: { code: string }) => e)
+  const onFinish = async () => {
+    setIsLoading(true)
+    const result:any = await userApi.login()
     if ('accessToken' in result) {
       dispatch(authActions.setCredentials({ accessToken: result.accessToken }))
-      const p = dispatch(authApi.endpoints.me.initiate())
-      await p.unwrap().catch(() => undefined)
-      p.unsubscribe()
       const redirect = params.get('redirect')
       navigate(redirect ? decodeURIComponent(redirect) : '/dashboard', { replace: true })
+      setIsLoading(false)
       return
     }
 
     const code = (result as { code?: string }).code
     if (code === 'AUTH_INVALID_CREDENTIALS') {
       message.error(t('invalidCredentials'))
+      setIsLoading(false)
       return
     }
+    setIsLoading(false)
     message.error((result as { message?: string }).message ?? 'Error')
   }
 

@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { appActions } from '../../store/slices/appSlice'
 import { authActions } from '../../store/slices/authSlice'
 import { userActions } from '../../store/slices/userSlice'
-import { authApi, useLogoutMutation } from '../../store/apii/authApi'
+// import { authApi, useLogoutMutation } from '../../store/apii/authApi'
 
 const { Header, Sider, Content } = Layout
 
@@ -35,7 +35,7 @@ export function AppLayout() {
   const roles = useAppSelector((s) => s.user.roles)
   const userName = useAppSelector((s) => s.user.profile?.name)
 
-  const [doLogout, { isLoading: isLoggingOut }] = useLogoutMutation()
+//   const [doLogout, { isLoading: isLoggingOut }] = useLogoutMutation()
 
   const menuTree: MenuItem[] = useMemo(() => {
     const items: MenuItem[] = [
@@ -96,16 +96,14 @@ export function AppLayout() {
   }
 
   const onLogout = async () => {
-    await doLogout().unwrap().catch(() => undefined)
     dispatch(authActions.logout())
     dispatch(userActions.reset())
-    dispatch(authApi.util.resetApiState())
     navigate('/login', { replace: true })
   }
 
   const userMenuItems: NonNullable<MenuProps['items']> = [
     { key: 'profile', label: t('profile'), onClick: () => navigate('/profile') },
-    { key: 'logout', label: t('logout'), onClick: onLogout, disabled: isLoggingOut },
+    { key: 'logout', label: t('logout'), onClick: onLogout, disabled: false },
   ]
 
   return (

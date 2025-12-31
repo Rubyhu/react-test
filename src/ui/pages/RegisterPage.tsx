@@ -1,9 +1,9 @@
 import { Button, Card, Form, Input, Space, Typography, message } from 'antd'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useEffect } from 'react'
-import { useRegisterMutation } from '../../store/apii/authApi'
+import { useEffect,useState } from 'react'
 import { useAppSelector } from '../../store/hooks'
+import { userApi } from '@/api/user'
 
 type FormValues = {
   account: string
@@ -12,10 +12,10 @@ type FormValues = {
 }
 
 export function RegisterPage() {
+    const [isLoading, setIsLoading ]  = useState(false)
   const { t } = useTranslation()
   const [form] = Form.useForm<FormValues>()
   const navigate = useNavigate()
-  const [register, { isLoading }] = useRegisterMutation()
   const token = useAppSelector((s) => s.auth.accessToken)
 
   useEffect(() => {
@@ -23,26 +23,29 @@ export function RegisterPage() {
   }, [navigate, token])
 
   const onFinish = async (values: FormValues) => {
+    setIsLoading(true)
     if (values.password !== values.confirmPassword) {
       message.error(t('passwordNotMatch'))
+      setIsLoading(false)
       return
     }
 
-    const result = await register({ account: values.account, password: values.password })
-      .unwrap()
-      .catch((e: { code: string }) => e)
+    const result:any = await userApi.register()
 
     if ('success' in result && result.success) {
       message.success(t('registerSuccess'))
       navigate('/login', { replace: true })
+      setIsLoading(false)
       return
     }
 
     const code = (result as { code?: string }).code
     if (code === 'AUTH_ACCOUNT_EXISTS') {
+         setIsLoading(true)
       message.error(t('accountExists'))
       return
     }
+    setIsLoading(false)
     message.error((result as { message?: string }).message ?? 'Error')
   }
 
