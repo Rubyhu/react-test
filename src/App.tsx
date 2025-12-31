@@ -14,7 +14,11 @@ function App() {
   }, [i18n.language])
 
   return (
-    <ConfigProvider locale={locale}>
+    <ConfigProvider locale={locale} theme={{
+      token: {
+        colorPrimary: "red",
+      },
+    }}>
       <RouterProvider router={router} />
     </ConfigProvider>
   )

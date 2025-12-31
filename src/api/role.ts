@@ -9,4 +9,5 @@ interface Role {
 export const roleApi = {
   getRoles: () => request.get<Role[]>('/roles'),
   createRole: (data: Role) => request.post('/roles', data),
+  
 }
