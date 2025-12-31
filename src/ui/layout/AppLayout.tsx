@@ -121,7 +121,7 @@ export function AppLayout() {
       <Sider collapsible collapsed={collapsed} trigger={null}>
         <div style={{ height: 48, display: 'flex', alignItems: 'center', padding: '0 16px' }}>
           <Typography.Text style={{ color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>
-            {collapsed ? 'A' : t('appName')}
+            {collapsed ? '后' : t('appName')}
           </Typography.Text>
         </div>
         <Menu
@@ -134,13 +134,13 @@ export function AppLayout() {
       </Sider>
       <Layout>
         <Header style={{ padding: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Button type="text" onClick={toggle} aria-label="toggle-sider">
+          <Button type="primary" onClick={toggle} aria-label="toggle-sider">
             {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           </Button>
           <Space size={12}>
-            <Button type="text" onClick={switchLanguage} aria-label="switch-language" icon={<GlobalOutlined />} />
+            <Button type="primary" onClick={switchLanguage} aria-label="switch-language" icon={<GlobalOutlined />} />
             <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
-              <Button type="text">
+              <Button type="primary">
                 <span>{userName ?? '-'}</span>
               </Button>
             </Dropdown>
