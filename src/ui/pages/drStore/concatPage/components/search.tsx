@@ -1,11 +1,14 @@
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Form, Input } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import React from 'react';
 
-const SearchForm: React.FC = (props) => {
+interface SearchFormProps {
+  onSearch: (values: any) => void;
+}
+
+const SearchForm: React.FC<SearchFormProps> = (props) => {
     const formRef = React.useRef<FormInstance>(null);
   const onFinish = (values: any) => {
-    debugger
     console.log('Success:', values);
     props.onSearch(values);
   };
