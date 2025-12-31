@@ -1,11 +1,12 @@
 import { Card, Descriptions } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { useAppSelector } from '../../store/hooks'
+import { useSelector } from 'react-redux'
+import type { RootState } from '@/store/store'
 
 export function ProfilePage() {
   const { t } = useTranslation()
-  const profile = useAppSelector((s) => s.user.profile)
-  const roles = useAppSelector((s) => s.user.roles)
+  const profile = useSelector((s:RootState) => s.user.profile)
+  const roles = useSelector((s:RootState) => s.user.roles)
 
   return (
     <Card title={t('profile')}>
