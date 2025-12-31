@@ -28,12 +28,12 @@ export function LoginPage() {
     }
   }, [navigate, token])
 
-  const onFinish = async () => {
+  const onFinish = async (values:FormValues) => {
     setIsLoading(true)
     const result:any = await userApi.login()
     if ('accessToken' in result) {
       dispatch(authActions.setCredentials({ accessToken: result.accessToken }))
-          dispatch(getUserInfoAsync())
+          dispatch(getUserInfoAsync(values))
       const redirect = params.get('redirect')
       navigate(redirect ? decodeURIComponent(redirect) : '/dashboard', { replace: true })
       setIsLoading(false)

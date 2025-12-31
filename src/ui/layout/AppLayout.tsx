@@ -54,10 +54,10 @@ export function AppLayout() {
       {
         key: '/system',
         label: t('system'),
-        // roles: ['admin'],
+         roles: ['admin'],
         children: [
-          { key: '/system/users', label: t('users'), path: '/system/users',  },
-          { key: '/system/roles', label: t('roles'), path: '/system/roles',  },
+          { key: '/system/users', label: t('users'), path: '/system/users',   roles: ['admin'],  },
+          { key: '/system/roles', label: t('roles'), path: '/system/roles',   roles: ['admin'],  },
         ],
       },
     ]

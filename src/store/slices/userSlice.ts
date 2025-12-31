@@ -25,9 +25,8 @@ const initialState: UserState = {
   roles: [],
   permissionCodes: [],
 }
-export const getUserInfoAsync = createAsyncThunk('userInfo', async () => {
-  const response: any = await userApi.getUserInfo()
-  debugger
+export const getUserInfoAsync = createAsyncThunk('userInfo', async (params:any) => {
+  const response: any = await userApi.getUserInfo(params)
   return {
     id: response.id,
     name: response.name,
