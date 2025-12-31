@@ -3,10 +3,11 @@ import { MenuFoldOutlined, MenuUnfoldOutlined, GlobalOutlined } from '@ant-desig
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { appActions } from '../../store/slices/appSlice'
 import { authActions } from '../../store/slices/authSlice'
 import { userActions } from '../../store/slices/userSlice'
+import { useDispatch,useSelector } from 'react-redux'
+import type { RootState,AppDispatch } from '@/store/store'
 // import { authApi, useLogoutMutation } from '../../store/apii/authApi'
 
 const { Header, Sider, Content } = Layout
@@ -32,10 +33,10 @@ export function AppLayout() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
-  const dispatch = useAppDispatch()
-  const collapsed = useAppSelector((s) => s.app.collapsed)
-  const roles = useAppSelector((s) => s.user.roles)
-  const userName = useAppSelector((s) => s.user.profile?.name)
+ const dispatch = useDispatch<AppDispatch>()
+  const collapsed = useSelector((s:RootState) => s.app.collapsed)
+  const roles = useSelector((s:RootState) => s.user.roles)
+  const userName = useSelector((s:RootState) => s.user.profile?.name)
 
 //   const [doLogout, { isLoading: isLoggingOut }] = useLogoutMutation()
 

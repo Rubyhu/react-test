@@ -2,10 +2,12 @@ import { Button, Card, Form, Input, Space, Typography, message } from 'antd'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useEffect,useState } from 'react'
-import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { authActions } from '../../store/slices/authSlice'
 import { userApi } from '@/api/user'
 import { getUserInfoAsync } from '../../store/slices/userSlice'
+import { useDispatch,useSelector, } from 'react-redux'
+import type { RootState } from '@/store/store'
+
 
 type FormValues = {
   account: string
@@ -18,8 +20,8 @@ export function LoginPage() {
   const [form] = Form.useForm<FormValues>()
   const [params] = useSearchParams()
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
-  const token = useAppSelector((s) => s.auth.accessToken)
+ const dispatch = useDispatch()
+  const token = useSelector((s:RootState) => s.auth.accessToken)
 
 
   useEffect(() => {

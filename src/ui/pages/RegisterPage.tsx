@@ -2,8 +2,10 @@ import { Button, Card, Form, Input, Space, Typography, message } from 'antd'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useEffect,useState } from 'react'
-import { useAppSelector } from '../../store/hooks'
+
 import { userApi } from '@/api/user'
+import type { RootState } from '@/store/store'
+import { useSelector } from 'react-redux'
 
 type FormValues = {
   account: string
@@ -16,7 +18,7 @@ export function RegisterPage() {
   const { t } = useTranslation()
   const [form] = Form.useForm<FormValues>()
   const navigate = useNavigate()
-  const token = useAppSelector((s) => s.auth.accessToken)
+  const token = useSelector((s:RootState) => s.auth.accessToken)
 
   useEffect(() => {
     if (token) navigate('/dashboard', { replace: true })
