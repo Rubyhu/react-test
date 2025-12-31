@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 import { getAccessToken } from '../store/storage'
 import { Navigate, useLocation } from 'react-router-dom'
-import {  useAppSelector } from '../store/hooks'
+import { useSelector } from 'react-redux'
+import type { RootState } from '@/store/store'
 import { ForbiddenPage } from '../ui/pages/ForbiddenPage'
 
 /**
@@ -24,7 +25,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 }
 
 export function RequireRoles({ roles, children }: { roles: string[]; children: ReactNode }) {
-  const userRoles = useAppSelector((s) => s.user.roles)
+  const userRoles = useSelector((s:RootState) => s.user.roles)
   const ok = roles.some((r) => userRoles.includes(r))
   if (!ok) return <ForbiddenPage />
   return children
