@@ -8,6 +8,8 @@ import { ProfilePage } from '../ui/pages/ProfilePage'
 import { UsersPage } from '../ui/pages/system/UsersPage'
 import { RolesPage } from '../ui/pages/system/RolesPage'
 import { NotFoundPage } from '../ui/pages/NotFoundPage'
+import { DrPage } from '../ui/pages/drStore/drPage/index'
+import { ConcatPage } from '../ui/pages/drStore/concatPage/index'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -21,6 +23,8 @@ export const router = createBrowserRouter([
     children: [
       { path: '/', element: <Navigate to="/dashboard" replace /> },
       { path: '/dashboard', element: <DashboardPage /> },
+       { path: '/drStore/drPage', element: <DrPage /> },
+         { path: '/drStore/concatPage', element: <ConcatPage /> },
       { path: '/profile', element: <ProfilePage /> },
       {
         path: '/system/users',

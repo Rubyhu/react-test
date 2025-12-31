@@ -22,6 +22,8 @@ type MenuItem = {
 function getSelectedKeys(pathname: string) {
   if (pathname.startsWith('/system/users')) return ['/system/users']
   if (pathname.startsWith('/system/roles')) return ['/system/roles']
+  if (pathname.startsWith('/drStore/drPage')) return ['/drStore/drPage']
+  if (pathname.startsWith('/drStore/concatPage')) return ['/drStore/concatPage']
   if (pathname.startsWith('/profile')) return ['/profile']
   return ['/dashboard']
 }
@@ -41,13 +43,21 @@ export function AppLayout() {
     const items: MenuItem[] = [
       { key: '/dashboard', label: t('dashboard'), path: '/dashboard' },
       { key: '/profile', label: t('profile'), path: '/profile' },
+       {
+        key: '/drStore',
+        label: "达人库",
+        children: [
+          { key: '/drStore/drPage', label: "达人库", path: '/drStore/drPage',  },
+          { key: '/drStore/concatPage', label: "联系人", path: 'drStore/concatPage', },
+        ],
+      },
       {
         key: '/system',
         label: t('system'),
-        roles: ['admin'],
+        // roles: ['admin'],
         children: [
-          { key: '/system/users', label: t('users'), path: '/system/users', roles: ['admin'] },
-          { key: '/system/roles', label: t('roles'), path: '/system/roles', roles: ['admin'] },
+          { key: '/system/users', label: t('users'), path: '/system/users',  },
+          { key: '/system/roles', label: t('roles'), path: '/system/roles',  },
         ],
       },
     ]
