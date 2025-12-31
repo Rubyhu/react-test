@@ -5,6 +5,7 @@ import { useEffect,useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { authActions } from '../../store/slices/authSlice'
 import { userApi } from '@/api/user'
+import { getUserInfoAsync } from '../../store/slices/userSlice'
 
 type FormValues = {
   account: string
@@ -32,6 +33,7 @@ export function LoginPage() {
     const result:any = await userApi.login()
     if ('accessToken' in result) {
       dispatch(authActions.setCredentials({ accessToken: result.accessToken }))
+          dispatch(getUserInfoAsync())
       const redirect = params.get('redirect')
       navigate(redirect ? decodeURIComponent(redirect) : '/dashboard', { replace: true })
       setIsLoading(false)
